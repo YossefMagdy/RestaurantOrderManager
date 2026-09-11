@@ -28,6 +28,10 @@ public class Order {
         return orderId;
     }
 
+    public double getTotal() {
+        return total;
+    }
+
     public OrderStatus getStatus() {
         return status;
     }
@@ -50,10 +54,7 @@ public class Order {
     }
 
     public void calculateTotal() {
-        total = 0;
-        for (OrderItem item : items) {
-            total += item.calculateSubTotal();
-        }
+        total = items.stream().mapToDouble(OrderItem::calculateSubTotal).sum();
     }
 
     public void setStatus(OrderStatus status) {

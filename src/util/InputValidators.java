@@ -5,15 +5,18 @@ import java.util.Scanner;
 public class InputValidators {
     public static int validateChoice(Scanner scanner) {
         while (true) {
+            if (!scanner.hasNext()) {
+                throw new IllegalStateException("Input ended");
+            }
             if(!scanner.hasNextInt()) {
-                System.out.println("Please enter a valid choice from 0 - 14");
+                System.out.println("Please enter a valid choice from 1 - 14");
                 scanner.next();
                 continue;
             }
 
             int choice = scanner.nextInt();
-            if (choice < 0 || choice > 14) {
-                System.out.println("Please enter a valid choice from 0 - 14");
+            if (choice < 1 || choice > 14) {
+                System.out.println("Please enter a valid choice from 1 - 14");
                 continue;
             }
             return choice;
@@ -22,6 +25,9 @@ public class InputValidators {
 
     public static int validateInteger (Scanner scanner, String name , int min) {
         while (true) {
+            if (!scanner.hasNext()) {
+                throw new IllegalStateException("Input ended");
+            }
             if(!scanner.hasNextInt()) {
                 System.out.printf("Please enter valid %s \n",name);
                 scanner.next();
@@ -39,8 +45,7 @@ public class InputValidators {
         while (true) {
             if(!scanner.hasNextLine()) {
                 System.out.println("Please enter a valid name");
-                scanner.nextLine();
-                continue;
+                throw new IllegalStateException("Input ended");
             }
             String name = scanner.nextLine();
             if(name.length() < 3) {
@@ -53,13 +58,16 @@ public class InputValidators {
 
     public static double validateBalance (Scanner scanner) {
         while (true) {
+            if (!scanner.hasNext()) {
+                throw new IllegalStateException("Input ended");
+            }
             if(!scanner.hasNextDouble()) {
                 System.out.println("please enter a valid balance ");
                 scanner.nextLine();
                 continue;
             }
             double balance = scanner.nextDouble();
-            if(balance < 0) {
+            if(!Double.isFinite(balance) || balance < 0) {
                 System.out.println("please enter a valid balance greater than 0");
                 continue;
             }

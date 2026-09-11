@@ -3,13 +3,32 @@ package model;
 import enums.OrderStatus;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Restaurant {
 
     private final ArrayList<MenuItem> menu = new ArrayList<>();
     private final LinkedList<Order> kitchenQueue =new LinkedList<>();
-    private final HashMap<Integer, Order> orders = new HashMap<>();
+    private final HashMap<Integer, Order> orders = new LinkedHashMap<>();
     private final LinkedHashMap<Integer, Order> completedOrdersStore = new LinkedHashMap<>();
+
+    public Optional<MenuItem> findMenuItem(int id) {
+        return menu.stream().filter(item -> item.getId() == id).findFirst();
+    }
+
+    public Optional<Order> findOrder(int id) {
+        return Optional.ofNullable(orders.get(id));
+    }
+
+    public List<MenuItem> getMenuSortedById() {
+        return menu.stream().sorted(Comparator.comparingInt(MenuItem::getId))
+                .collect(Collectors.toList());
+    }
+
+    public List<MenuItem> getMenuSortedByPrice() {
+        return menu.stream().sorted(Comparator.comparingDouble(MenuItem::getPrice)
+                .thenComparingInt(MenuItem::getId)).collect(Collectors.toList());
+    }
 
     public void AddMenuItem(MenuItem m){
         if(checkMenuId(m.getId()) != -1){
@@ -44,26 +63,18 @@ public class Restaurant {
             System.out.println("Menu Items are empty");
             return;
         }
-        for(MenuItem m : menu){
-            System.out.println(m);
-        }
+        menu.forEach(m -> System.out.println(m));
     }
 
     public void searchMenuItem(Integer id){
-        int itemId = checkMenuId(id);
-        if(itemId != -1){
-            System.out.println("-> " + menu);
-            return;
-        }
-        System.out.println("Menu id doesn't exists");
+        System.out.println(findMenuItem(id).map(item -> "-> " + item)
+                .orElse("Menu id doesn't exist"));
     }
 
     public void createOrder(Order o){
-        if(checkOrderId(o.getOrderId())){
+        if (orders.putIfAbsent(o.getOrderId(), o) != null) {
             System.out.println("Order already exists");
-            return;
         }
-        orders.put(o.getOrderId(), o);
     }
 
     public boolean checkOrderId (int orderId){
@@ -72,13 +83,13 @@ public class Restaurant {
 
     public void AddOrderItem(int orderId, int menuItemId,int quantity){
         if(!checkOrderId(orderId)){
-            System.out.println("Order Id doesn't exists");
+            System.out.println("Order Id doesn't exist");
             return;
         }
         Order order = orders.get(orderId);
         if(order.getStatus() == OrderStatus.COMPLETED ||
                 order.getStatus() == OrderStatus.CANCELLED){
-            System.out.printf("Order has already been %s",order.getStatus());
+            System.out.println("Order has already been " + order.getStatus());
             return;
         }
 
@@ -96,7 +107,7 @@ public class Restaurant {
 
     public void removeOrderItem(int orderId, int menuItemId){
         if(!checkOrderId(orderId)){
-            System.out.println("Order Id doesn't exists");
+            System.out.println("Order Id doesn't exist");
             return;
         }
 
@@ -104,7 +115,7 @@ public class Restaurant {
 
         if(order.getStatus() == OrderStatus.COMPLETED ||
                 order.getStatus() == OrderStatus.CANCELLED){
-            System.out.printf("Order has already been %s",order.getStatus());
+            System.out.println("Order has already been " + order.getStatus());
             return;
         }
 
@@ -130,9 +141,7 @@ public class Restaurant {
         return orders.get(orderId);
     }
     public void displayAllOrders(){
-        for(Order o : orders.values()){
-            System.out.println(o);
-        }
+        orders.values().forEach(o -> System.out.println(o));
     }
 
     public void addOrderTokitchenQueue(){
@@ -158,12 +167,10 @@ public class Restaurant {
 
             return;
         }
-        System.out.println("Order has already been empty");
+        System.out.println("Kitchen queue is empty");
     }
 
     public void displayCompletedOrders() {
-        for (Order o : completedOrdersStore.values()) {
-            System.out.println(o);
-        }
+        completedOrdersStore.values().forEach(o -> System.out.println(o));
     }
 }
